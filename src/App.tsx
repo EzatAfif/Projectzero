@@ -21,6 +21,13 @@ function Field({ label, children }: { label: string; children: ReactNode }) { re
 const inputClass = 'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#647D7B] focus:outline-none'
 const roleLabel: Record<Role, string> = { student: 'Pelajar', lecturer: 'Pensyarah', admin: 'Pentadbir' }
 
+function isBackendUnavailable(error: { message?: string; code?: string; status?: number }) {
+  const status = typeof error.status === 'number' ? error.status : 0
+  if (status === 0 || status >= 500) return true
+  const text = `${error.message ?? ''} ${error.code ?? ''}`.toLowerCase()
+  return /fetch failed|network|econnrefused|enotfound|socket hang ?up|timed? ?out|offline/.test(text)
+}
+
 export default function App() {
   const [user, setUser] = useState<any>(null)
   const [role, setRole] = useState<Role>('student')
@@ -51,7 +58,16 @@ export default function App() {
       supabase.from('learning_notes').select('*').order('created_at', { ascending: false }),
     ])
     const failed = [s, r, e, n].find(result => result.error)
-    if (failed?.error) setError(failed.error.message)
+    if (failed?.error) {
+      setError(failed.error.message)
+      if (isBackendUnavailable(failed.error)) {
+        setStudents([]); setRequests([]); setEquipment([]); setNotes([])
+        setUser(null); setRole('student')
+        try { await supabase.auth.signOut({ scope: 'local' }) } catch { /* backend unreachable */ }
+        setLoading(false)
+        return
+      }
+    }
     if (s.data) setStudents(s.data as Student[])
     if (r.data) setRequests(r.data as BorrowingRequest[])
     if (e.data) setEquipment(e.data as Equipment[])
