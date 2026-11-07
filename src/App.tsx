@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { supabase, isSupabaseConfigured } from './lib/supabase'
 import type { BorrowingRequest, Equipment, LearningNote, Role, Student } from './types'
-import { BookOpen, Boxes, ChefHat, ChevronDown, CircleAlert, ClipboardList, Download, FileSpreadsheet, FileText, GraduationCap, LayoutDashboard, LogOut, Menu, Plus, Search, ShieldCheck, Trash2, Upload, Users, X } from 'lucide-react'
+import { BookOpen, Boxes, ChefHat, CircleAlert, ClipboardList, Download, FileSpreadsheet, FileText, GraduationCap, LayoutDashboard, LogOut, Menu, Plus, Search, ShieldCheck, Trash2, Upload, Users, X } from 'lucide-react'
 import * as XLSX from 'xlsx'
 
 type Tab = 'overview' | 'students' | 'borrowing' | 'resources'
